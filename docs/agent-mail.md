@@ -1,188 +1,257 @@
-# agent-mail
+# Agent Mail
 
-`agent-mail` is a small command-line interface for mailing Codex coagents.
+Agent Mail is mail-style coordination for Codex main threads and subagents.
+It gives agents a small shared surface for three ordinary actions:
 
-It is not a workflow engine. It has one job: make it easy to find agents in the
-current family, send them live messages, and read enough conversation history to
-know whether the message landed.
+```text
+see the team
+write a note
+read visible context
+```
 
-## Command Set
+Use it when several Codex agents are working in the same conversation tree and
+need a clear, low-friction way to address each other.
+
+## Current Status
+
+Agent Mail has two pieces:
+
+- The installable Codex plugin and `agent-mail` CLI in this repo.
+- Hosted `agent_mail.*` support in Codex core for real GUI-native mail.
+
+The plugin and CLI exist today. The hosted mail transport is still landing in
+Codex, so the CLI is intentionally honest:
+
+- `agent-mail team` shows the current main/subagent family.
+- `agent-mail write` resolves a target, then requires host-native
+  `agent_mail.write` before it claims delivery.
+- `agent-mail read` resolves a target, then requires host-native
+  `agent_mail.read` before it claims transcript access.
+
+There is no local mailbox fallback and no separate Agent Mail server to start.
+The plugin hooks invoke the packaged Rust CLI; Codex core owns real delivery.
+
+## Install
+
+Install the plugin marketplace source:
 
 ```bash
+codex plugin marketplace add pauljunsukhan/codex-power-utils
+```
+
+Then in Codex:
+
+```text
+1. Open Plugins.
+2. Enable Agent Mail.
+3. Open Hooks review, or run /hooks in the CLI/TUI.
+4. Trust the Agent Mail hooks.
+5. Start a new Codex session.
+```
+
+Hooks only add a short model-visible reminder that Agent Mail exists. They do
+not deliver mail, prove reachability, or replace hosted `agent_mail.*` tools.
+
+## Quick Start
+
+List the current team:
+
+```bash
+agent-mail team
+```
+
+Use `--technical` when a name is ambiguous:
+
+```bash
+agent-mail team --technical
+```
+
+When host-native mail is available, send a queued note:
+
+```bash
+agent-mail write subagent:1 "Can you check the failing test?"
+```
+
+Ask for immediate interruption only when the recipient should change course:
+
+```bash
+agent-mail write subagent:1 "Pause and read the latest patch first." --interrupt
+```
+
+Read recent visible context from a reachable target:
+
+```bash
+agent-mail read subagent:1 --limit 10
+```
+
+If `write` or `read` fails with a host-native-required message, the note was not
+delivered. Update Codex when native `agent_mail.write/read` support is available,
+then rerun the command.
+
+## Team Directory
+
+`team` shows only the current main/subagent family and the handles that Agent
+Mail can resolve:
+
+```text
+Team
+
+handle         name                         state
+main           Build the docs               main
+subagent:1     Dirac                        open
+subagent:2     Noether                      open
+```
+
+These aliases are equivalent:
+
+```bash
+agent-mail coworkers
+agent-mail contacts
+agent-mail subagents
 agent-mail ls
-agent-mail to <target> "<message>"
-agent-mail read <target>
-agent-mail watch <target>
-agent-mail search "<query>"
 ```
 
-That is the core surface.
+The directory is for addressing. It is not delivery proof, and it is not a
+search engine for every historical Codex thread.
 
-## Targets
+## Addresses
 
-`agent-mail ls` lists only the current family by default:
+Use stable, human-readable targets:
 
 ```text
-ROLE      TITLE / NAME              ID                                      STATUS
-self      Current side agent         019e...                                 active
-parent    Main task agent            019e...                                 active
-child     Docs worker                019e...                                 running
-child     Bug hunter                 019e...                                 completed
+main
+subagent
+subagent:N
+Dirac
+Dirac#2
+role:reviewer
+Dirac:tester
 ```
 
-The target resolver accepts identifiers from `ls`:
+Rules:
+
+- `main` is the main thread for this family.
+- `subagent` works only when there is exactly one subagent.
+- `subagent:N` is stable within the current family.
+- A bare name works only when it is unique.
+- Repeated names get suffixes such as `Dirac#1` and `Dirac#2`.
+- Role aliases work only when they are unique.
+
+Use `agent-mail team --technical` when Agent Mail asks you to disambiguate.
+
+## Writing Mail
+
+Hosted Agent Mail writes queued GUI mail by default:
 
 ```text
-self
-parent
-child
-child:1
-child:docs
-Docs worker
-019e96ef-9c20-...
+deliveryMode = "queue"
+forwardNext = 3
+requireReply = false
 ```
 
-If `ls` can see it, `to`, `read`, and `watch` should accept it.
+Queue mode means the note should appear as native GUI mail without interrupting
+or starting the recipient's current work.
 
-Cross-session agents are intentionally outside the default family view. Use
-`agent-mail search "<query>"` to find them in broader session logs, then address
-them by explicit thread or agent id.
-
-## Sending Mail
-
-```bash
-agent-mail to parent "focus on the live A/V presenter bug"
-agent-mail to child:1 "rerun the smoke test and tell me the first failure"
-```
-
-Default behavior:
-
-1. Resolve the target.
-2. Send a live message through the best available agent channel.
-3. Print the delivery id or clear failure.
-4. Read back enough target history to show the message landed or is pending.
-
-File handoffs are not part of the core command set. If a live send path is not
-available, the tool should say that directly instead of pretending a file note is
-mail.
-
-## GUI-Visible Mail
-
-Some Codex steering messages appear in the GUI as a collapsed "Steered
-conversation" item. When the sender needs the body visible in the target chat,
-use `--visible`:
-
-```bash
-agent-mail to child:1 --visible "hello from side agent"
-```
-
-The message wrapper should ask the recipient to echo the body near the top of
-its next visible assistant update:
+Interrupt delivery is explicit:
 
 ```text
-Mail from side agent. Please echo this message body near the top of your next
-visible assistant update, then continue your current task:
-
-hello from side agent
+deliveryMode = "interrupt"
 ```
 
-This is intentionally explicit. GUI visibility is different from delivery.
+`forwardNext` exists because agents often react to the first note before the
+sender's immediate follow-up context arrives. By default, Agent Mail forwards
+the sender's next three visible messages as one labeled follow-up context item.
 
-## Reading Mail
+`requireReply` is for explicit delegation. Ordinary coordination should not
+block the sender.
 
-```bash
-agent-mail read parent
-agent-mail read child:1 --limit 20
-```
+## Reading Context
 
-Default output is role-only visible transcript:
+`agent_mail.read` browses a reachable agent's live visible transcript. It is not
+an inbox check; mail arrives through the GUI.
+
+Default:
 
 ```text
-user:
-...
-
-assistant:
-...
+latest 10 visible transcript messages
 ```
 
-Tool calls, edit summaries, and raw rollout events are hidden unless requested.
-
-Optional flags:
-
-```bash
-agent-mail read child:1 --events
-agent-mail read child:1 --timestamps
-```
-
-## Watching Mail
-
-```bash
-agent-mail watch child:1
-agent-mail watch child:1 --timeout 10m
-```
-
-`watch` follows target conversation activity until one of these happens:
-
-- new assistant output appears
-- the target reaches a completed state
-- timeout expires
-
-It should not busy-poll aggressively.
-
-## Search
-
-```bash
-agent-mail search "Document RTL workflow"
-agent-mail search "A/V presenter C2H"
-```
-
-Search is wider than `ls`. It can inspect session indexes, process-manager
-state, rollout names, and recent transcript text. Search results should mark
-whether a target is in-family or cross-session.
+Examples:
 
 ```text
-MATCH     SCOPE          TITLE                  ID
-1         in-family      Docs worker             019e...
-2         cross-session  Old bug hunt            019e...
+agent_mail.read({ target: "subagent:1" })
+agent_mail.read({ target: "main", limit: 25 })
+agent_mail.read({
+  target: "subagent:1",
+  since: "2026-06-05T22:00:00Z",
+  until: "2026-06-05T22:30:00Z"
+})
 ```
 
-## Closed-Loop Behavior
+The CLI bridge mirrors the same shape:
 
-The tool should be bold by default but honest about proof.
+```bash
+agent-mail read subagent:1 --limit 25
+```
 
-For `to`, success means the message was submitted to a live channel. Stronger
-success means `read` or `watch` shows either:
+## Delivery Receipts
 
-- the message body appeared visibly, or
-- the target's next assistant response changed behavior in response to it.
+A successful write should give the sender a receipt that answers the practical
+question agents care about: did Codex resolve the target and place this note in
+the recipient's native mail surface?
 
-For `--visible`, success should include the echoed body in the transcript.
+If native support is unavailable, Agent Mail fails clearly rather than
+pretending the message landed. A local file, stale transcript snapshot, or
+terminal scrape is not a delivery receipt.
 
-The tool should print the distinction:
+## Troubleshooting
+
+Check whether the CLI is available:
+
+```bash
+command -v agent-mail
+agent-mail team
+```
+
+If hooks do not seem active:
 
 ```text
-submitted: 019e...
-visible: yes
-target_changed_behavior: unknown
+1. Re-open Hooks review, or run /hooks.
+2. Trust Agent Mail hooks.
+3. Start a new session.
 ```
 
-## Non-Goals
+If the packaged plugin cannot find a binary for your platform, rebuild the local
+cartridge:
 
-- No workflow DSL.
-- No mandatory aliases.
-- No durable file-handoff fallback pretending to be mail.
-- No default scan of every historical Codex session.
-- No hidden mutation of unrelated threads.
+```bash
+scripts/package-agent-mail-plugin.sh
+scripts/smoke-test-agent-mail-plugin.sh
+```
 
-## Initial Implementation Notes
+## Local Development
 
-Likely data sources:
+For a local checkout, package the binary and add this repo as a marketplace
+source:
 
-- Codex process-manager state for active family members.
-- Codex session index for titles and thread ids.
-- Rollout JSONL files for visible `user` / `assistant` transcript history.
-- Built-in multi-agent send APIs for live child-agent delivery.
-- Codex app-server APIs for explicit cross-session sending when safe.
+```bash
+scripts/package-agent-mail-plugin.sh
+scripts/smoke-test-agent-mail-plugin.sh
+codex plugin marketplace add /Users/paulhan/dev/codex-power-utils
+```
 
-The implementation should start with `ls`, `to`, and `read`. Add `watch` and
-`search` once the basic live path is reliable.
+The local Codex app link is:
+
+```text
+codex://plugins/agent-mail?marketplacePath=/Users/paulhan/dev/codex-power-utils/.agents/plugins/marketplace.json
+```
+
+Build and test the Rust CLI:
+
+```bash
+cargo test -p agent-mail
+cargo clippy -p agent-mail --all-targets -- -D warnings
+```
+
+For the host implementation contract, see
+[agent-mail-implementation-spec.md](agent-mail-implementation-spec.md).

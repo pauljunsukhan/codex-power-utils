@@ -1,0 +1,20 @@
+{
+  "name": "codex-power-utils",
+  "interface": {
+    "displayName": "Codex Power Utils"
+  },
+  "plugins": [
+    {
+      "name": "agent-mail",
+      "source": {
+        "source": "local",
+        "path": "./plugins/agent-mail"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

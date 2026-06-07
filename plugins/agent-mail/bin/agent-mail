@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+set -eu
+
+DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
+
+if [ -n "${AGENT_MAIL_BIN:-}" ]; then
+  if [ -x "$AGENT_MAIL_BIN" ]; then
+    exec "$AGENT_MAIL_BIN" "$@"
+  fi
+  echo "AGENT_MAIL_BIN is set but not executable: $AGENT_MAIL_BIN" >&2
+  exit 1
+fi
+
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64) target="aarch64-apple-darwin" ;;
+  Darwin-x86_64) target="x86_64-apple-darwin" ;;
+  Linux-x86_64) target="x86_64-unknown-linux-gnu" ;;
+  *)
+    echo "unsupported platform for Agent Mail: $(uname -s)-$(uname -m)" >&2
+    exit 1
+    ;;
+esac
+
+binary="$DIR/agent-mail-$target"
+if [ ! -x "$binary" ]; then
+  echo "Agent Mail binary is not packaged for $target: $binary" >&2
+  echo "Run scripts/package-agent-mail-plugin.sh from the codex-power-utils repo." >&2
+  exit 1
+fi
+
+exec "$binary" "$@"

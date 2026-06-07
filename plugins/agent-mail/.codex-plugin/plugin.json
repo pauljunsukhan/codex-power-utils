@@ -1,0 +1,30 @@
+{
+  "name": "agent-mail",
+  "version": "0.3.0+codex.20260605-agent-mail",
+  "description": "Agent Mail directory/debug shell for native-GUI-first Codex mail. Please enable hooks.",
+  "author": {
+    "name": "Paul Han"
+  },
+  "repository": "https://github.com/pauljunsukhan/codex-power-utils",
+  "license": "MIT",
+  "interface": {
+    "displayName": "Agent Mail",
+    "shortDescription": "Find this Codex team; prepare native mail.",
+    "longDescription": "Agent Mail gives Codex agents a native-GUI-first coordination surface. The plugin provides hooks and a team directory while host-native agent_mail tools land in Codex core. Real mail is delivered only by host-native agent_mail tools.",
+    "developerName": "Haptica",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "You have Agent Mail. Run `agent-mail team` to identify this main/subagent family; `coworkers`, `contacts`, `subagents`, and `ls` are compatibility aliases. Use hosted `agent_mail.write/read` for real mail when Codex exposes them; do not claim CLI write/read delivered GUI mail without a host-native receipt."
+    ],
+    "composerIcon": "./assets/icon.svg",
+    "screenshots": [
+      "./assets/trust-hooks.png"
+    ],
+    "brandColor": "#3B82F6"
+  },
+  "hooks": "./hooks/hooks.json"
+}
