@@ -1,48 +1,47 @@
 # Agent Mail
 
-Agent Mail is native-GUI-first coordination for Codex main threads and
-subagents.
+Agent Mail is stateless coordination for Codex agents.
 
-Please enable hooks. Hooks teach agents the small public surface while
-host-native `agent_mail.*` tools land in Codex core.
-
-Directory:
-
-```bash
-agent-mail team
-```
-
-`team` shows the current main/subagent family with addresses such as
-`main`, `subagent`, and `subagent:1`.
-
-Compatibility aliases:
-
-```bash
-agent-mail coworkers
-agent-mail contacts
-agent-mail subagents
-agent-mail ls
-```
-
-Native surfaces:
+It exposes four MCP tools:
 
 ```text
-agent_mail.team  # current main/subagent family
-agent_mail.write      # queued GUI mail by default
-agent_mail.read       # live transcript browsing
+agent_mail.my_team
+agent_mail.repo_teams
+agent_mail.write
+agent_mail.read
 ```
 
-The packaged CLI keeps `agent-mail write` and `agent-mail read` as future bridge
-commands. Until Codex exposes host-native `agent_mail.write` and
-`agent_mail.read`, they resolve the target and fail clearly. They do not write a
-local mailbox, read stale SQLite/history rows, scrape terminal UI, or claim
-GUI-native delivery.
-
-Hook reminder:
+The tools are backed by real Codex thread APIs:
 
 ```text
-Agent Mail is native-GUI-first. Use `agent-mail team` to see this main/subagent family; use hosted `agent_mail.write/read` for real mail when Codex exposes them.
+thread/list
+thread/read
+thread/resume
+thread/inject_items
 ```
 
-Full guide: `docs/agent-mail.md`.
-Implementation contract: `docs/agent-mail-implementation-spec.md`.
+There is no Agent Mail store or plugin mailbox.
+
+## Hooks
+
+Hooks only add role-aware reminder text.
+
+Main agents can list teams, write non-terminating mail, and read thread
+context. Subagents should read the main thread and reply through normal visible
+output.
+
+## Proof
+
+Good proof is live thread evidence:
+
+```text
+my_team shows real main/subagent ids
+repo_teams shows real repo threads
+write appends to a real target thread, resuming in the same app-server session only when injection needs materialization
+read shows real target thread history
+read also surfaces transcript-file items that thread/read omits
+subagents do not use write as a reply path
+```
+
+Smoke tests are useful, but store-level tests are not proof because no store
+exists.

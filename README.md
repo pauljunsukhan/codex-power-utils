@@ -1,25 +1,22 @@
 # Codex Power Utils
 
-Agent Mail is native GUI mail for Codex-agent coordination.
+Agent Mail is stateless coordination for Codex-agent teams.
 
-The product direction is native GUI mail: Codex core owns live agent discovery,
-sender identity, delivery, read/unread state, interrupt behavior, and GUI rendering
-through hosted `agent_mail.*` tools. This repo currently ships the public
-plugin/CLI shell for install, hooks, and future host bridge work while the
-host-native runtime lands.
+This repo ships the installable Agent Mail plugin cartridge and its Rust MCP
+server. The MCP tools are backed by real Codex thread APIs and do not use a
+private Agent Mail store.
 
-```bash
-agent-mail team
+Agents use the MCP tools directly:
+
+```text
+agent_mail.my_team
+agent_mail.repo_teams
+agent_mail.write
+agent_mail.read
 ```
 
-`agent-mail team` shows the current main/subagent family with usable
-addresses such as `main`, `subagent`, and `subagent:1`. It is the only public
-directory command for now. Broad search and outside-family discovery are
-intentionally out of the first Agent Mail surface.
-
-`agent-mail write` is reserved for host-native GUI mail. `agent-mail read` is
-reserved for host-native transcript browsing of reachable agents. Neither command
-uses SQLite snapshots, stale history, local mailbox files, or terminal scraping.
+The plugin binary implements `agent-mail serve-mcp`, `agent-mail hook <event>`,
+and `agent-mail doctor`.
 
 ## Install
 
@@ -28,8 +25,7 @@ codex plugin marketplace add pauljunsukhan/codex-power-utils
 ```
 
 Then enable Agent Mail in Codex Plugins, open Hooks review or `/hooks`, and
-trust the Agent Mail hooks. Hooks only teach the discovery/debug surface until
-native `agent_mail.*` tools exist in the host.
+trust the Agent Mail hook.
 
 ## Development
 
@@ -37,8 +33,7 @@ Utilities in this repo are implemented in Rust. Build and test with Cargo:
 
 ```bash
 cargo test
-cargo run -p agent-mail -- team
-cargo run -p agent-mail -- write subagent:1 "Can you check this?"
+cargo run -p agent-mail -- doctor
 ```
 
 Package the current host binary into the Codex plugin cartridge:
@@ -48,19 +43,22 @@ scripts/package-agent-mail-plugin.sh
 scripts/smoke-test-agent-mail-plugin.sh
 ```
 
-Generated `plugins/agent-mail/bin/agent-mail-*` binaries are release artifacts.
-The source cartridge keeps the portable `bin/agent-mail` wrapper.
+Generated `plugins/agent-mail/bin/agent-mail-*` binaries are ignored local
+packaging output. The source cartridge keeps the portable `bin/agent-mail`
+wrapper.
 
 ## Repo Layout
 
-- `crates/agent-mail`: Rust CLI for directory/debug and future host bridge.
+- `api.md`: authoritative Agent Mail MCP API.
+- `crates/agent-mail`: Rust MCP and hook binary for the installable plugin cartridge.
 - `plugins/agent-mail`: installable Codex plugin cartridge.
-- `docs/agent-mail.md`: customer-facing guide, install flow, and current CLI.
-- `docs/agent-mail-implementation-spec.md`: strict host-native implementation contract.
+- `docs/agent-mail-mcp-plugin.md`: plugin behavior guide.
+- `docs/agent-mail-mcp-plugin-implementation-spec.md`: stateless implementation contract.
+- `skills/agent-messaging/draft2.md`: manually verified app/thread command reference.
 - `.agents/plugins/marketplace.json`: repo-local marketplace entry.
-- `vendor/openai-codex`: dev-only protocol oracle, not a runtime dependency.
 
 ## More
 
-- [docs/agent-mail.md](docs/agent-mail.md): product guide and install details.
-- [docs/agent-mail-implementation-spec.md](docs/agent-mail-implementation-spec.md): Codex host implementation spec.
+- [api.md](api.md): authoritative public API.
+- [docs/agent-mail-mcp-plugin.md](docs/agent-mail-mcp-plugin.md): plugin guide.
+- [docs/agent-mail-mcp-plugin-implementation-spec.md](docs/agent-mail-mcp-plugin-implementation-spec.md): implementation spec.

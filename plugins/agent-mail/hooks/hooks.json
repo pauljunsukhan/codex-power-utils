@@ -2,30 +2,72 @@
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "${PLUGIN_ROOT}/bin/agent-mail hook session-start"
+            "command": "\"$PLUGIN_ROOT/bin/agent-mail\" hook session-start",
+            "timeout": 3
           }
         ]
       }
     ],
     "SubagentStart": [
       {
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "${PLUGIN_ROOT}/bin/agent-mail hook subagent-start"
+            "command": "\"$PLUGIN_ROOT/bin/agent-mail\" hook subagent-start",
+            "timeout": 3
           }
         ]
       }
     ],
     "UserPromptSubmit": [
       {
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "${PLUGIN_ROOT}/bin/agent-mail hook user-prompt-submit"
+            "command": "\"$PLUGIN_ROOT/bin/agent-mail\" hook user-prompt-submit",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$PLUGIN_ROOT/bin/agent-mail\" hook post-tool-use",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$PLUGIN_ROOT/bin/agent-mail\" hook stop",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$PLUGIN_ROOT/bin/agent-mail\" hook subagent-stop",
+            "timeout": 3
           }
         ]
       }

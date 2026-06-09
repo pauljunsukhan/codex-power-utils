@@ -1,30 +1,41 @@
 {
   "name": "agent-mail",
-  "version": "0.3.0+codex.20260605-agent-mail",
-  "description": "Agent Mail directory/debug shell for native-GUI-first Codex mail. Please enable hooks.",
+  "version": "0.4.0+codex.20260609015719",
+  "description": "Mail-style coordination for Codex agents through MCP tools and trusted hooks.",
   "author": {
-    "name": "Paul Han"
+    "name": "Haptica",
+    "email": "paul@haptica.ai",
+    "url": "https://github.com/pauljunsukhan"
   },
   "repository": "https://github.com/pauljunsukhan/codex-power-utils",
   "license": "MIT",
+  "keywords": [
+    "codex",
+    "agents",
+    "mail",
+    "coordination",
+    "mcp"
+  ],
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Agent Mail",
-    "shortDescription": "Find this Codex team; prepare native mail.",
-    "longDescription": "Agent Mail gives Codex agents a native-GUI-first coordination surface. The plugin provides hooks and a team directory while host-native agent_mail tools land in Codex core. Real mail is delivered only by host-native agent_mail tools.",
+    "shortDescription": "Mail-style coordination for Codex agents.",
+    "longDescription": "Agent Mail gives Codex agents a small social primitive: see the team, write a note, and read context through MCP tools backed by trusted hooks.",
     "developerName": "Haptica",
     "category": "Productivity",
     "capabilities": [
-      "Read",
-      "Write"
+      "MCP",
+      "Hooks"
     ],
     "defaultPrompt": [
-      "You have Agent Mail. Run `agent-mail team` to identify this main/subagent family; `coworkers`, `contacts`, `subagents`, and `ls` are compatibility aliases. Use hosted `agent_mail.write/read` for real mail when Codex exposes them; do not claim CLI write/read delivered GUI mail without a host-native receipt."
+      "Use Agent Mail to coordinate with subagents.",
+      "Check Agent Mail for team context.",
+      "Send a note to another Codex agent."
     ],
     "composerIcon": "./assets/icon.svg",
     "screenshots": [
       "./assets/trust-hooks.png"
     ],
     "brandColor": "#3B82F6"
-  },
-  "hooks": "./hooks/hooks.json"
+  }
 }
