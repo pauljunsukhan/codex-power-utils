@@ -22,6 +22,18 @@ thread/inject_items
 
 There is no Agent Mail store or plugin mailbox.
 
+## Install
+
+```bash
+codex plugin marketplace add pauljunsukhan/codex-power-utils --ref agent-mail-v0.4.0
+codex plugin add agent-mail@codex-power-utils
+```
+
+Open a new Codex thread after installing so the MCP tools are present. Then
+open Hooks review or `/hooks` and trust the Agent Mail hook.
+
+This release includes macOS Apple Silicon and Intel binaries in `bin/`.
+
 ## Hooks
 
 Hooks only add role-aware reminder text.

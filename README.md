@@ -21,11 +21,20 @@ and `agent-mail doctor`.
 ## Install
 
 ```bash
-codex plugin marketplace add pauljunsukhan/codex-power-utils
+codex plugin marketplace add pauljunsukhan/codex-power-utils --ref agent-mail-v0.4.0
+codex plugin add agent-mail@codex-power-utils
 ```
 
-Then enable Agent Mail in Codex Plugins, open Hooks review or `/hooks`, and
-trust the Agent Mail hook.
+Open a new Codex thread after installing so the Agent Mail MCP tools are loaded.
+Then open Hooks review or `/hooks` and trust the Agent Mail hook.
+
+The `agent-mail-v0.4.0` release cartridge includes prebuilt binaries for macOS
+Apple Silicon and Intel Codex installs:
+
+```text
+plugins/agent-mail/bin/agent-mail-aarch64-apple-darwin
+plugins/agent-mail/bin/agent-mail-x86_64-apple-darwin
+```
 
 ## Development
 
@@ -44,7 +53,8 @@ scripts/smoke-test-agent-mail-plugin.sh
 ```
 
 Generated `plugins/agent-mail/bin/agent-mail-*` binaries are ignored local
-packaging output. The source cartridge keeps the portable `bin/agent-mail`
+packaging output unless they are one of the macOS release binaries tracked in
+the plugin cartridge. The source cartridge keeps the portable `bin/agent-mail`
 wrapper.
 
 ## Repo Layout
@@ -56,6 +66,7 @@ wrapper.
 - `docs/agent-mail-mcp-plugin-implementation-spec.md`: stateless implementation contract.
 - `skills/agent-messaging/draft2.md`: manually verified app/thread command reference.
 - `.agents/plugins/marketplace.json`: repo-local marketplace entry.
+- `docs/releases/agent-mail-v0.4.0.md`: current release install notes.
 
 ## More
 

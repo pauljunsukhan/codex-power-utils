@@ -1,6 +1,6 @@
 {
   "name": "agent-mail",
-  "version": "0.4.0+codex.20260609015719",
+  "version": "0.4.0+codex.20260609084734",
   "description": "Mail-style coordination for Codex agents through MCP tools and trusted hooks.",
   "author": {
     "name": "Haptica",

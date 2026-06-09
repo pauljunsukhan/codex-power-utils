@@ -8,4 +8,6 @@ __pycache__/
 plugins/agent-mail/bin/agent-mail-*
 plugins/agent-mail/bin/codex-agent-mail-*
 !plugins/agent-mail/bin/agent-mail
+!plugins/agent-mail/bin/agent-mail-aarch64-apple-darwin
+!plugins/agent-mail/bin/agent-mail-x86_64-apple-darwin
 .agents/runtime/
